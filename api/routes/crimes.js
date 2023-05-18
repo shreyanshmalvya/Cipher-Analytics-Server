@@ -102,8 +102,8 @@ router.get("/crimes-by-month", async (req, res) => {
     const chartData = Object.keys(results).map((month) => {
       return {
         date: month,
-        currentYearCount: results[month].currentYear || 0,
-        yearBeforeCount: results[month].yearBefore || 0,
+        Current_Year: results[month].currentYear || 0,
+        Previous_Year: results[month].yearBefore || 0,
       };
     });
 

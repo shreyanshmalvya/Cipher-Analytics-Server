@@ -98,9 +98,14 @@ router.get("/top7", async (req, res) => {
       .from("category_crime")
       .groupBy("category")
       .orderBy("totalFrequency", "desc")
-      .limit(7);
+      .limit(16)
 
-    res.json(result);
+    const parsedResult = result.map((row) => ({
+      category: row.category,
+      totalFrequency: parseInt(row.totalFrequency),
+    }));
+
+    res.json(parsedResult);
   } catch (err) {
     console.log(err);
     res.status(500).send(err);
