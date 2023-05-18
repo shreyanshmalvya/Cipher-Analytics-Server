@@ -5,8 +5,29 @@ const router = Router();
 //get all crimes
 router.get("/", async (req, res) => {
   try {
-    const crimes = await db.select().table("crimes");
-    res.status(200).json(crimes);
+    const crimes = await db.select().table("crimes").limit(25);
+    //random transaction id for each request
+    const transactionId = Math.floor(Math.random() * 1000000000);
+    //freq of total crime
+    const totalFrequency = crimes.reduce(
+      (total, curr) => total + curr.frequency,
+      0
+    );
+    //create an indivisual transaction for each crime, with crime, city, frequency and transaction id, and conditin for resolved if true else false
+    const crimeTransactions = crimes.map((crime) => {
+      return {
+        transactionId,
+        crime: crime.category,
+        city: crime.city,
+        frequency: crime.frequency,
+        resolved: crime.resolved ? "Resolved" : "In Progress",
+      };
+    });
+    //send the response with total frequency and crime transactions
+    res.status(200).json({
+      totalFrequency,
+      crimeTransactions,
+    });
   } catch (err) {
     console.log(err);
     res.status(500).send(err);
