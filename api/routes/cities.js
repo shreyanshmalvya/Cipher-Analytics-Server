@@ -53,13 +53,24 @@ router.get("/highestCrime", async (req, res) => {
 
     console.table([result, secondResult]);
 
+    const percentageChange =  Math.abs((((result.totalFrequency - secondResult.totalFrequency) / result.totalFrequency) * 100).toFixed(2));
+
+    const changeCategory =
+      percentageChange > 5
+        ? "increase"
+        : percentageChange > 0
+        ? "moderateIncrease"
+        : percentageChange < -5
+        ? "decrease"
+        : percentageChange < 0
+        ? "moderateDecrease"
+        : "unchanged";
+
     const highestCity = {
       city: result.city,
-      totalFrequency: result.totalFrequency,
-      percentage:
-        ((result.totalFrequency - secondResult.totalFrequency) /
-          secondResult.totalFrequency) *
-        100,
+      totalFrequency: parseInt(result.totalFrequency), // Parse totalFrequency as an integer
+      percentageChange,
+      changeCategory,
     };
 
     res.status(201).json({
@@ -73,32 +84,30 @@ router.get("/highestCrime", async (req, res) => {
 
 //get list of top 5 cities with highest crime frequency and their percentage
 router.get("/top5", async (req, res) => {
-    try {
-        const result = await db
-            .select("city")
-            .sum("frequency as totalFrequency")
-            .from("city_crime")
-            .groupBy("city")
-            .orderBy("totalFrequency", "desc")
-            .limit(5);
+  try {
+    const result = await db
+      .select("city")
+      .sum("frequency as totalFrequency")
+      .from("city_crime")
+      .groupBy("city")
+      .orderBy("totalFrequency", "desc")
+      .limit(5);
 
+    const top5 = result.map((city) => {
+      return {
+        city: city.city,
+        totalFrequency: parseInt(city.totalFrequency), // Parse totalFrequency as an integer
+      };
+    });
 
-        const top5 = result.map((city) => {
-            return {
-                city: city.city,
-                totalFrequency: city.totalFrequency,
-            }
-        }); 
-
-        res.status(201).json({
-            top5,
-        });
-    } catch (err) {
-        console.log(err);
-        res.status(500).send(err);
-    }
+    res.status(201).json({
+      top5,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
 });
-
 
 //post crimes using knex
 router.post("/", async (req, res) => {

@@ -29,9 +29,9 @@ router.get("/total", async (req, res) => {
     const totalCount = totalCrimes.count;
     const lastWeekCount = totalCrimesLastWeek.count;
 
-    const percentageChange =
-      100 -
-      Math.abs((((totalCount - lastWeekCount) / totalCount) * 100).toFixed(2));
+    //percentage value of lastweek count compared to total count
+    const percentageChange = ((lastWeekCount / totalCount) * 100).toFixed(2);
+
 
     const changeCategory =
       percentageChange > 5
@@ -123,7 +123,7 @@ router.get("/active", async (req, res) => {
       .groupBy("city")
       .count("id")
       .orderBy("count", "desc")
-      .limit(5);
+      .limit(8);
 
     res.status(200).json(crimes);
   } catch (err) {

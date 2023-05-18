@@ -61,12 +61,27 @@ router.get("/highestCrime", async (req, res) => {
     const highestFrequency = result.totalFrequency;
     const secondFrequency = secondResult.totalFrequency;
 
-    const percentageChange =
-      ((highestFrequency - secondFrequency) / secondFrequency) * 100;
+    const percentageChange = (
+      ((highestFrequency - secondFrequency) / secondFrequency) *
+      100
+    ).toFixed(2);
+
+    const changeCategory =
+      percentageChange > 5
+        ? "increase"
+        : percentageChange > 0
+        ? "moderateIncrease"
+        : percentageChange < -5
+        ? "decrease"
+        : percentageChange < 0
+        ? "moderateDecrease"
+        : "unchanged";
 
     res.json({
       highestCategory,
+      highestFrequency,
       percentageChange,
+      changeCategory,
     });
   } catch (err) {
     console.log(err);
@@ -74,7 +89,7 @@ router.get("/highestCrime", async (req, res) => {
   }
 });
 
-//get top7 category with highest frequency 
+//get top7 category with highest frequency
 router.get("/top7", async (req, res) => {
   try {
     const result = await db
@@ -91,7 +106,6 @@ router.get("/top7", async (req, res) => {
     res.status(500).send(err);
   }
 });
-
 
 //post crimes using knex
 router.post("/", async (req, res) => {
