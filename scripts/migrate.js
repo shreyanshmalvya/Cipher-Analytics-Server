@@ -1,8 +1,6 @@
 const db = require("../dbconfig.js");
 
 (async () => {
-    console.log("Creating tables...")
-    console.log(process.env.databse)
     try {
         await db.schema.createTable("crimes", (table) => {
             table.increments("id").primary();
