@@ -53,7 +53,6 @@ router.get("/total", async (req, res) => {
     //percentage value of lastweek count compared to total count
     const percentageChange = ((lastWeekCount / totalCount) * 100).toFixed(2);
 
-
     const changeCategory =
       percentageChange > 5
         ? "increase"
@@ -79,12 +78,10 @@ router.get("/total", async (req, res) => {
 
 router.get("/crimes-by-month", async (req, res) => {
   try {
-    // Get the current month and year
     const today = new Date();
     const currentYear = today.getFullYear();
     const currentMonth = today.getMonth() + 1; // Note: Month is zero-indexed
 
-    // Get the month and year one year ago
     const yearAgo = new Date();
     yearAgo.setFullYear(yearAgo.getFullYear() - 1);
 
@@ -106,7 +103,6 @@ router.get("/crimes-by-month", async (req, res) => {
       .whereRaw(`EXTRACT(YEAR FROM date) = ?`, [currentYear - 1])
       .groupBy("month");
 
-    // Combine the data for the current year and the year before
     const results = {};
     currentYearRows.forEach((row) => {
       results[row.month] = { currentYear: row.count };
@@ -119,13 +115,20 @@ router.get("/crimes-by-month", async (req, res) => {
       }
     });
 
-    // Format the combined data into an array of objects suitable for charting
     const chartData = Object.keys(results).map((month) => {
       return {
         date: month,
         Current_Year: results[month].currentYear || 0,
         Previous_Year: results[month].yearBefore || 0,
       };
+    });
+
+    chartData.sort((a, b) => {
+      const [aMonth, aYear] = a.date.split(" ");
+      const [bMonth, bYear] = b.date.split(" ");
+      const aDate = new Date(`${aMonth} 01, 20${aYear}`);
+      const bDate = new Date(`${bMonth} 01, 20${bYear}`);
+      return aDate - bDate;
     });
 
     res.json(chartData);
