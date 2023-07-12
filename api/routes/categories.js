@@ -119,6 +119,15 @@ router.post("/", async (req, res) => {
       .where("city", req.body.city)
       .andWhere("crime", req.body.crime)
       .increment("frequency", 1);
+      //if city and crime combination does not exist then insert it
+    if (crime === 0) {
+      await db("city_crime").insert({
+        city: req.body.city,
+        crime: req.body.crime,
+        frequency: 1,
+        timestamp: new Date(),
+      });
+    }
     res.status(200).json(crime);
   } catch (error) {
     console.log(err);
